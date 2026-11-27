@@ -11,6 +11,8 @@ const SCOPE = 'https://www.googleapis.com/auth/drive'
 const API = 'https://www.googleapis.com/drive/v3'
 const UPLOAD = 'https://www.googleapis.com/upload/drive/v3'
 const FOLDER = 'application/vnd.google-apps.folder'
+/** stemstem 구글 클라우드 프로젝트의 웹 클라이언트 ID (공개 값, 비밀 아님) */
+const DEFAULT_CLIENT_ID = '248412144774-kmm0fsdfsilncfaee784oe0eer6g85k5.apps.googleusercontent.com'
 export const ROOT_NAME = 'StemStem'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -30,7 +32,7 @@ export function getClientId(): string {
   } catch {
     /* 무시 */
   }
-  return import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''
+  return import.meta.env.VITE_GOOGLE_CLIENT_ID || DEFAULT_CLIENT_ID
 }
 
 export function setClientId(id: string) {

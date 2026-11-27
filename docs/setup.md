@@ -11,6 +11,10 @@
 
 ## 2. 구글 드라이브 연결용 클라이언트 ID 만들기
 
+> 이미 만들어서 앱에 기본값으로 넣어 두었습니다 (구글 클라우드 프로젝트 `stemstem`, 테스트 사용자로 본인 Gmail 등록됨).
+> 밴드원도 쓰려면 [대상 페이지](https://console.cloud.google.com/auth/audience?project=stemstem)에서 테스트 사용자로 Gmail을 추가하세요.
+> 아래는 새로 만들 때의 순서입니다.
+
 앱이 내 드라이브에 곡을 올리고 결과를 받아오려면 필요합니다.
 
 1. https://console.cloud.google.com/ 접속 → 위쪽에서 **새 프로젝트** (이름 예: stemstem)
