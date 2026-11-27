@@ -1,0 +1,12 @@
+node_modules/
+dist/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.env.local
+*.wav
+*.mp3
+*.m4a
+*.flac
