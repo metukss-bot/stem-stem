@@ -3,11 +3,14 @@ import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // GitHub Pages 주소: https://metukss-bot.github.io/stem-stem/
+// 안드로이드 앱(Capacitor) 빌드는 APP_BUILD=android 로 하며, 앱 안에 파일이 들어가므로 서비스워커가 필요 없음
+const isAndroid = process.env.APP_BUILD === 'android'
+
 export default defineConfig({
   base: process.env.BASE_PATH ?? '/',
   plugins: [
     react(),
-    VitePWA({
+    !isAndroid && VitePWA({
       registerType: 'autoUpdate',
       manifest: {
         name: 'StemStem 합주 플레이어',

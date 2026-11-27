@@ -14,7 +14,8 @@
 폰 앱 ◀──내려받아 폰에 저장── (이후 오프라인 재생)
 ```
 
-- 앱: https://metukss-bot.github.io/stem-stem/
+- 앱(웹): https://metukss-bot.github.io/stem-stem/
+- 안드로이드 앱: [StemStem.apk](https://github.com/metukss-bot/stem-stem/releases/latest/download/StemStem.apk) (설치 방법: [docs/android.md](docs/android.md))
 - 처음 설정과 사용법: [docs/setup.md](docs/setup.md)
 
 ## 폴더
@@ -22,7 +23,7 @@
 | 폴더 | 내용 |
 | --- | --- |
 | `colab/` | 분석 노트북 `StemStem.ipynb` 와 파이썬 코드 (`stemstem/`) |
-| `web/` | 폰용 웹앱 (React + TypeScript + Vite, PWA) |
+| `web/` | 폰용 웹앱 (React + TypeScript + Vite, PWA). `web/android/`는 안드로이드 앱(Capacitor) |
 | `docs/` | 설정 안내 |
 
 ## 개발
