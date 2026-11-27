@@ -1,4 +1,7 @@
-# 자동 분석 서버 (Hugging Face Spaces 무료 CPU)
+# 자동 분석 서버 (Hugging Face Spaces)
+
+> 2026-11 기준 Hugging Face는 Gradio/Docker Space에 유료 플랜(PRO)이 필요해요.
+> 무료로 쓰려면 [GitHub로 자동 분석](github-analysis.md)을 쓰세요.
 
 폰 앱에서 "곡 분석하기"로 곡을 고르면, 이 서버가 알아서 6스템 분리와 BPM/키 분석을 해요.
 Colab에 들어갈 필요가 없어요. 무료 CPU라서 한 곡에 5~10분쯤 걸려요.

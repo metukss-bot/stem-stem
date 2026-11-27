@@ -26,6 +26,8 @@ export interface Job {
 export interface Pending {
   id: string
   title: string
+  /** 'gh' = GitHub 저장소 분석, 없으면 분석 서버 */
+  kind?: 'gh' | 'srv'
 }
 
 export function getServer(): string {

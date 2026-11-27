@@ -1,6 +1,7 @@
 import { Capacitor } from '@capacitor/core'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import * as drive from './drive'
+import * as github from './github'
 import { Player } from './Player'
 import * as server from './server'
 import {
@@ -45,6 +46,10 @@ export default function App() {
   const [current, setCurrent] = useState<SavedSong | null>(null)
   const [showSettings, setShowSettings] = useState(false)
   const [serverUrl, setServerUrl] = useState(server.getServer())
+  const [ghRepo, setGhRepo] = useState(github.getRepo())
+  const [ghToken, setGhToken] = useState(github.getToken())
+  const [ghReady, setGhReady] = useState(github.isConfigured())
+  const [repoSongs, setRepoSongs] = useState<LibrarySong[]>([])
   const [clientId, setClientId] = useState(drive.getClientId())
   // 예전 방식(구글 드라이브 + Colab)
   const [library, setLibrary] = useState<LibrarySong[]>([])
@@ -68,11 +73,16 @@ export default function App() {
         list.some((j) => j.id === p.id) ? list : [...list, { ...p, text: '상태 확인 중...' }],
       )
       try {
-        const job = await server.waitForJob(p.id, (j) => setJobText(p.id, server.describe(j)))
-        const { analysis, stems } = await server.downloadResult(job, (d, t) =>
-          setJobText(p.id, `폰에 받는 중 ${d}/${t}`),
-        )
-        await saveSong({ id: `srv-${p.id}`, analysis, stems, savedAt: Date.now() })
+        const onDl = (d: number, t: number) => setJobText(p.id, `폰에 받는 중 ${d}/${t}`)
+        if (p.kind === 'gh') {
+          const analysis = await github.waitFor(p.id, (text) => setJobText(p.id, text))
+          const stems = await github.download(p.id, analysis, onDl)
+          await saveSong({ id: `gh-${p.id}`, analysis, stems, savedAt: Date.now() })
+        } else {
+          const job = await server.waitForJob(p.id, (j) => setJobText(p.id, server.describe(j)))
+          const { analysis, stems } = await server.downloadResult(job, onDl)
+          await saveSong({ id: `srv-${p.id}`, analysis, stems, savedAt: Date.now() })
+        }
         server.removePending(p.id)
         setJobs((list) => list.filter((j) => j.id !== p.id))
         await refreshSaved()
@@ -89,7 +99,10 @@ export default function App() {
     refreshSaved()
     requestPersistence()
     // 앱을 껐다 켜도 진행 중이던 분석을 이어서 확인
-    if (server.getServer()) server.getPending().forEach((p) => track(p))
+    server
+      .getPending()
+      .filter((p) => (p.kind === 'gh' ? github.isConfigured() : !!server.getServer()))
+      .forEach((p) => track(p))
   }, [refreshSaved, track])
 
   async function run(label: string, fn: () => Promise<void>) {
@@ -106,6 +119,22 @@ export default function App() {
   const analyze = (files: FileList | null) => {
     if (!files?.length) return
     const list = Array.from(files)
+    if (github.isConfigured()) {
+      run('곡을 올리는 중...', async () => {
+        for (const [i, f] of list.entries()) {
+          const { id, title } = await github.upload(f, (t) =>
+            setStatus(`(${i + 1}/${list.length}) ${f.name}: ${t}`),
+          )
+          const p = { id, title, kind: 'gh' as const }
+          server.addPending(p)
+          track(p)
+        }
+        setStatus(
+          `${list.length}곡을 보냈어요. 곡당 10분쯤 걸려요. 앱을 닫아도 다음에 열면 이어서 받아요.`,
+        )
+      })
+      return
+    }
     run('분석 서버를 깨우는 중...', async () => {
       await server.wake((sec) =>
         setStatus(`분석 서버를 깨우는 중... ${sec}초 (오래 안 쓰면 1~3분 걸려요)`),
@@ -133,6 +162,26 @@ export default function App() {
     setJobText(j.id, '다시 확인 중...')
     track(j)
   }
+
+  const loadRepoSongs = () =>
+    run('저장소의 곡 목록을 불러오는 중...', async () => {
+      const list = await github.library()
+      setRepoSongs(list)
+      setStatus(list.length ? '' : '저장소에 분석된 곡이 아직 없어요')
+    })
+
+  const openRepoSong = (song: LibrarySong) =>
+    run(`${song.title} 받는 중...`, async () => {
+      const analysis = await github.getAnalysis(song.id)
+      const stems = await github.download(song.id, analysis, (d, t) =>
+        setStatus(`${song.title} 받는 중 ${d}/${t}`),
+      )
+      const s = { id: `gh-${song.id}`, analysis, stems, savedAt: Date.now() }
+      await saveSong(s)
+      await refreshSaved()
+      setStatus('')
+      setCurrent(s)
+    })
 
   const openSaved = (id: string) =>
     run('여는 중...', async () => {
@@ -214,7 +263,8 @@ export default function App() {
   if (current) return <Player song={current} onBack={() => setCurrent(null)} />
 
   const savedIds = new Set(saved.map((s) => s.id))
-  const noServer = !serverUrl
+  const noServer = !serverUrl && !ghReady
+  const repoOnly = repoSongs.filter((s) => !savedIds.has(`gh-${s.id}`))
 
   return (
     <main className="app">
@@ -229,7 +279,27 @@ export default function App() {
         <section className="card">
           <h2>설정</h2>
           <label className="field">
-            분석 서버 주소
+            GitHub 데이터 저장소
+            <input
+              value={ghRepo}
+              onChange={(e) => setGhRepo(e.target.value)}
+              placeholder={github.DEFAULT_REPO}
+              autoCapitalize="off"
+              autoCorrect="off"
+            />
+          </label>
+          <label className="field">
+            GitHub 토큰
+            <input
+              type="password"
+              value={ghToken}
+              onChange={(e) => setGhToken(e.target.value)}
+              placeholder="github_pat_..."
+              autoComplete="off"
+            />
+          </label>
+          <label className="field">
+            분석 서버 주소 (허깅페이스, 없으면 비워 두기)
             <input
               value={serverUrl}
               onChange={(e) => setServerUrl(e.target.value)}
@@ -243,6 +313,10 @@ export default function App() {
             onClick={() => {
               server.setServer(serverUrl)
               setServerUrl(server.getServer())
+              github.setRepo(ghRepo)
+              github.setToken(ghToken)
+              setGhRepo(github.getRepo())
+              setGhReady(github.isConfigured())
               setShowSettings(false)
             }}
           >
@@ -320,6 +394,25 @@ export default function App() {
           ))}
         </ul>
       </section>
+
+      {ghReady && (
+        <section>
+          <h2>저장소 곡</h2>
+          <button className="secondary small" disabled={busy} onClick={loadRepoSongs}>
+            저장소에서 곡 목록 불러오기
+          </button>
+          <ul className="songs">
+            {repoOnly.map((s) => (
+              <li key={s.id}>
+                <button className="song" disabled={busy} onClick={() => openRepoSong(s)}>
+                  <span className="title">{s.title}</span>
+                  <span className="meta">{meta(s)} · 눌러서 폰에 받기</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <details className="legacy">
         <summary>구글 드라이브 + Colab (예전 방식)</summary>
