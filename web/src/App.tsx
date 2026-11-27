@@ -1,8 +1,12 @@
+import { Capacitor } from '@capacitor/core'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import * as drive from './drive'
 import { Player } from './Player'
 import { deleteSong, getSong, listSavedIds, requestPersistence, saveSong } from './storage'
 import type { Analysis, LibrarySong, SavedSong } from './types'
+
+const APK_URL = 'https://github.com/metukss-bot/stem-stem/releases/latest/download/StemStem.apk'
+const isAndroidApp = Capacitor.isNativePlatform()
 
 const COLAB_URL =
   'https://colab.research.google.com/github/metukss-bot/stem-stem/blob/main/colab/StemStem.ipynb'
@@ -155,6 +159,11 @@ export default function App() {
             저장
           </button>
           <p className="hint">기본값이 들어 있어요. 다른 구글 프로젝트를 쓸 때만 바꾸세요.</p>
+          {!isAndroidApp && (
+            <p className="hint">
+              안드로이드 폰이면 <a href={APK_URL}>StemStem 앱(APK) 받기</a>
+            </p>
+          )}
         </section>
       )}
 

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">StemStem</string>
+    <string name="title_activity_main">StemStem</string>
+    <string name="package_name">io.github.metukssbot.stemstem</string>
+    <string name="custom_url_scheme">io.github.metukssbot.stemstem</string>
+</resources>

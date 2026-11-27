@@ -1,0 +1,54 @@
+name: Android APK
+
+on:
+  push:
+    branches: [main]
+    paths: ['web/**', '.github/workflows/android.yml']
+  pull_request:
+    paths: ['web/**', '.github/workflows/android.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - name: Build web app into the Android project
+        run: npm run android:sync
+        env:
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+      - name: Build APK
+        working-directory: web/android
+        run: ./gradlew --no-daemon assembleRelease
+      - name: Rename APK
+        run: cp android/app/build/outputs/apk/release/app-release.apk StemStem.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: StemStem-apk
+          path: web/StemStem.apk
+      - name: Publish release (main only)
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="android-${GITHUB_RUN_NUMBER}"
+          gh release create "$tag" StemStem.apk \
+            --title "StemStem 안드로이드 앱 #${GITHUB_RUN_NUMBER}" \
+            --notes "폰에서 StemStem.apk를 받아 설치하세요. 이전 버전 위에 그대로 업데이트돼요." \
+            --latest
