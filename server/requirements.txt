@@ -1,0 +1,12 @@
+# CPU 전용 torch (Hugging Face Spaces 무료 CPU). torchaudio 2.9+ 는 오디오 입출력이 바뀌어 Demucs와 맞지 않아 2.8로 고정
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.8.0
+torchaudio==2.8.0
+demucs==4.0.1
+lameenc>=1.5
+librosa>=0.10
+soundfile
+numpy<2.3
+fastapi>=0.115
+uvicorn>=0.30
+python-multipart>=0.0.9
