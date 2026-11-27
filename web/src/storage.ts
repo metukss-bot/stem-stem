@@ -39,3 +39,27 @@ export async function requestPersistence() {
     /* 무시 */
   }
 }
+
+/** 폰에 저장된 곡 목록 (제목, 키, BPM 포함). */
+export async function listSaved(): Promise<LibrarySongLike[]> {
+  const all = await tx<SavedSong[]>('readonly', (s) => s.getAll())
+  return all
+    .map((s) => ({
+      id: s.id,
+      title: s.analysis.title,
+      duration: s.analysis.duration,
+      bpm: s.analysis.bpm,
+      key: s.analysis.key?.name,
+      savedAt: s.savedAt,
+    }))
+    .sort((a, b) => b.savedAt - a.savedAt)
+}
+
+export interface LibrarySongLike {
+  id: string
+  title: string
+  duration?: number
+  bpm?: number | null
+  key?: string
+  savedAt: number
+}

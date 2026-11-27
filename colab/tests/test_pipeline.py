@@ -23,7 +23,7 @@ def make_tone(path, freq, seconds=6):
     )
 
 
-def fake_separate(src, workdir, device, bitrate=192):
+def fake_separate(src, workdir, device, bitrate=192, progress=None):
     out = workdir / pipeline.MODEL
     out.mkdir(parents=True)
     stems = {}
