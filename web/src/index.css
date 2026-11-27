@@ -62,3 +62,4 @@ input[type=range] { width: 100%; accent-color: var(--accent); height: 32px; }
 .legacy { margin-top: 32px; border-top: 1px solid var(--line); padding-top: 12px; }
 .legacy summary { color: var(--muted); font-size: 14px; cursor: pointer; min-height: 40px; display: flex; align-items: center; }
 .legacy .songs, .legacy .plain, .legacy .field { margin-top: 12px; }
+section > .small + .songs { margin-top: 8px; }

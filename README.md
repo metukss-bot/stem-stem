@@ -4,7 +4,7 @@
 폰에서 파트별 볼륨, 속도, 클릭을 조절하며 재생합니다. 전부 무료로 돌아갑니다.
 
 ```
-폰 앱 ──"곡 분석하기"──▶ 분석 서버 (Hugging Face Spaces 무료 CPU)
+폰 앱 ──"곡 분석하기"──▶ 비공개 저장소 stem-stem-data (GitHub Actions, 무료)
                           │  Demucs 6스템 분리 + 비트/BPM/키 분석
                           ▼
 폰 앱 ◀──스템 mp3 + analysis.json── (폰에 저장, 이후 오프라인 재생)
@@ -14,7 +14,8 @@
 
 - 앱(웹): https://metukss-bot.github.io/stem-stem/
 - 안드로이드 앱: [StemStem.apk](https://github.com/metukss-bot/stem-stem/releases/latest/download/StemStem.apk) (설치 방법: [docs/android.md](docs/android.md))
-- 분석 서버 만들기: [docs/server.md](docs/server.md)
+- 자동 분석 설정 (GitHub, 무료): [docs/github-analysis.md](docs/github-analysis.md)
+- 분석 서버 (Hugging Face, 유료 플랜 필요): [docs/server.md](docs/server.md)
 - 예전 방식(드라이브 + Colab) 설정: [docs/setup.md](docs/setup.md)
 
 ## 폴더
@@ -22,7 +23,7 @@
 | 폴더 | 내용 |
 | --- | --- |
 | `colab/` | 분석 파이썬 코드 (`stemstem/`)와 Colab 노트북 |
-| `server/` | 자동 분석 서버 (FastAPI, Hugging Face Space용 `space/Dockerfile`) |
+| `server/` | 자동 분석: GitHub Actions용 `batch.py`와 `data-repo/` 워크플로, Hugging Face용 서버 |
 | `web/` | 폰용 웹앱 (React + TypeScript + Vite, PWA). `web/android/`는 안드로이드 앱(Capacitor) |
 | `docs/` | 설정 안내 |
 
