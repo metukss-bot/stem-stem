@@ -21,7 +21,7 @@ export default function App() {
   const [status, setStatus] = useState('')
   const [busy, setBusy] = useState(false)
   const [current, setCurrent] = useState<SavedSong | null>(null)
-  const [showSettings, setShowSettings] = useState(!drive.getClientId())
+  const [showSettings, setShowSettings] = useState(false)
   const [clientId, setClientId] = useState(drive.getClientId())
   const fileRef = useRef<HTMLInputElement>(null)
   const localRef = useRef<HTMLInputElement>(null)
@@ -154,7 +154,7 @@ export default function App() {
           >
             저장
           </button>
-          <p className="hint">처음 한 번만 필요해요. 만드는 방법은 저장소의 docs/setup.md를 보세요.</p>
+          <p className="hint">기본값이 들어 있어요. 다른 구글 프로젝트를 쓸 때만 바꾸세요.</p>
         </section>
       )}
 
